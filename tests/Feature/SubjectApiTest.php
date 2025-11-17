@@ -77,10 +77,13 @@ class SubjectApiTest extends TestCase
     {
         $this->authenticate();
 
+        /** @var Subject $subject */
         $subject = Subject::factory()->create();
 
         $response = $this->putJson('/api/v1/subjects/'.$subject->id, [
             'name' => 'Updated Subject From API',
+            'code' => 'PHY101',
+            'description' => 'Updated description.',
         ]);
 
         $response
@@ -105,7 +108,7 @@ class SubjectApiTest extends TestCase
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('subjects', [
+        $this->assertSoftDeleted('subjects', [
             'id' => $subject->id,
         ]);
     }

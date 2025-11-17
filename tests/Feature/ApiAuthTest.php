@@ -21,13 +21,19 @@ class ApiAuthTest extends TestCase
         $response
             ->assertCreated()
             ->assertJsonStructure([
-                'user' => ['id', 'name', 'email'],
-                'token',
-            ]);
+                'success',
+                'status',
+                'data' => [
+                    'user' => ['id', 'name', 'email'],
+                    'token',
+                ],
+            ])
+            ->assertJsonPath('data.user.email', 'test@example.com');
     }
 
     public function test_user_can_login_and_receive_token(): void
     {
+        /** @var User $user */
         $user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
@@ -40,6 +46,12 @@ class ApiAuthTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJsonStructure(['token']);
+            ->assertJsonStructure([
+                'success',
+                'status',
+                'data' => [
+                    'token',
+                ],
+            ]);
     }
 }

@@ -78,10 +78,14 @@ class StudentApiTest extends TestCase
     {
         $this->authenticate();
 
+        /** @var Student $student */
         $student = Student::factory()->create();
 
         $response = $this->putJson('/api/v1/students/'.$student->id, [
             'name' => 'Updated From API',
+            'email' => 'updated-student@example.com',
+            'enrollment_number' => 'ENR12345',
+            'birth_date' => '2002-02-02',
         ]);
 
         $response
@@ -106,7 +110,7 @@ class StudentApiTest extends TestCase
 
         $response->assertNoContent();
 
-        $this->assertDatabaseMissing('students', [
+        $this->assertSoftDeleted('students', [
             'id' => $student->id,
         ]);
     }

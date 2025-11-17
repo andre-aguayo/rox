@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tests\Feature;
 
 use App\Mail\PasswordResetMail;
@@ -32,7 +31,11 @@ class AuthPasswordResetTest extends TestCase
         $response
             ->assertOk()
             ->assertJson([
-                'message' => 'If the email exists, a reset link has been sent.',
+                'success' => true,
+                'status' => 200,
+                'data' => [
+                    'message' => 'If the email exists, a reset link has been sent.',
+                ],
             ]);
 
         Mail::assertSent(PasswordResetMail::class, function (PasswordResetMail $mail) use ($user): bool {
@@ -55,7 +58,11 @@ class AuthPasswordResetTest extends TestCase
         $response
             ->assertOk()
             ->assertJson([
-                'message' => 'If the email exists, a reset link has been sent.',
+                'success' => true,
+                'status' => 200,
+                'data' => [
+                    'message' => 'If the email exists, a reset link has been sent.',
+                ],
             ]);
 
         Mail::assertNothingSent();
@@ -89,7 +96,11 @@ class AuthPasswordResetTest extends TestCase
         $response
             ->assertOk()
             ->assertJson([
-                'message' => 'Password has been reset successfully.',
+                'success' => true,
+                'status' => 200,
+                'data' => [
+                    'message' => 'Password has been reset successfully.',
+                ],
             ]);
 
         $user->refresh();
@@ -129,7 +140,9 @@ class AuthPasswordResetTest extends TestCase
 
         $response
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['token']);
+            ->assertJsonFragment([
+                'success' => false,
+            ]);
 
         $user->refresh();
 

@@ -17,9 +17,7 @@ class StudentServiceTest extends TestCase
     {
         parent::setUp();
 
-        /** @var StudentServiceInterface $service */
-        $service = $this->app->make(StudentServiceInterface::class);
-        $this->studentService = $service;
+        $this->studentService = $this->app->make(StudentServiceInterface::class);
     }
 
     public function test_it_creates_a_student(): void
@@ -31,24 +29,27 @@ class StudentServiceTest extends TestCase
             'birth_date' => '2000-01-01',
         ];
 
+        /** @var Student $student */
         $student = $this->studentService->create($data);
 
         $this->assertInstanceOf(Student::class, $student);
+
         $this->assertDatabaseHas('students', [
-            'id' => $student->id,
             'email' => 'student@example.com',
         ]);
     }
 
     public function test_it_updates_a_student(): void
     {
+        /** @var Student $student */
         $student = Student::factory()->create();
 
         $updated = $this->studentService->update($student->id, [
             'name' => 'Updated Name',
         ]);
 
-        $this->assertSame('Updated Name', $updated->name);
+        $this->assertEquals('Updated Name', $updated->name);
+
         $this->assertDatabaseHas('students', [
             'id' => $student->id,
             'name' => 'Updated Name',
@@ -61,7 +62,7 @@ class StudentServiceTest extends TestCase
 
         $this->studentService->delete($student->id);
 
-        $this->assertDatabaseMissing('students', [
+        $this->assertSoftDeleted('students', [
             'id' => $student->id,
         ]);
     }

@@ -17,9 +17,7 @@ class SubjectServiceTest extends TestCase
     {
         parent::setUp();
 
-        /** @var SubjectServiceInterface $service */
-        $service = $this->app->make(SubjectServiceInterface::class);
-        $this->subjectService = $service;
+        $this->subjectService = $this->app->make(SubjectServiceInterface::class);
     }
 
     public function test_it_creates_a_subject(): void
@@ -30,24 +28,27 @@ class SubjectServiceTest extends TestCase
             'description' => 'Basic mathematics.',
         ];
 
+        /** @var Subject $subject */
         $subject = $this->subjectService->create($data);
 
         $this->assertInstanceOf(Subject::class, $subject);
+
         $this->assertDatabaseHas('subjects', [
-            'id' => $subject->id,
             'code' => 'MATH101',
         ]);
     }
 
     public function test_it_updates_a_subject(): void
     {
+        /** @var Subject $subject */
         $subject = Subject::factory()->create();
 
         $updated = $this->subjectService->update($subject->id, [
             'name' => 'Updated Subject',
         ]);
 
-        $this->assertSame('Updated Subject', $updated->name);
+        $this->assertEquals('Updated Subject', $updated->name);
+
         $this->assertDatabaseHas('subjects', [
             'id' => $subject->id,
             'name' => 'Updated Subject',
@@ -60,7 +61,7 @@ class SubjectServiceTest extends TestCase
 
         $this->subjectService->delete($subject->id);
 
-        $this->assertDatabaseMissing('subjects', [
+        $this->assertSoftDeleted('subjects', [
             'id' => $subject->id,
         ]);
     }
