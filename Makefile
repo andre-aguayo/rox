@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 SAIL := ./vendor/bin/sail
+COMPOSER_IMAGE := laravelsail/php84-composer:latest
 
 .PHONY: help init up down restart logs test artisan migrate fresh
 
@@ -18,13 +19,24 @@ help:
 
 init:
 	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo ".env created from .env.example"; \
+			cp .env.example .env; \
+			echo ".env created from .env.example"; \
 	else \
-		echo ".env already exists, skipping copy from .env.example"; \
+			echo ".env already exists, skipping copy from .env.example"; \
 	fi
+	
+	docker run --rm \
+		-u "$$(id -u):$$(id -g)" \
+		-v "$$(pwd):/var/www/html" \
+		-w /var/www/html \
+		$(COMPOSER_IMAGE) \
+		composer install --ignore-platform-reqs
+
+	-@docker rmi -f $(COMPOSER_IMAGE) >/dev/null 2>&1 || true
+
 	$(SAIL) up -d
 	$(SAIL) artisan key:generate
+	make migrate
 
 up:
 	$(SAIL) up -d
@@ -42,8 +54,8 @@ test:
 
 artisan:
 	@if [ -z "$(cmd)" ]; then \
-		echo "Usage: make artisan cmd='your:command'"; \
-		exit 1; \
+			echo "Usage: make artisan cmd='your:command'"; \
+			exit 1; \
 	fi
 	$(SAIL) artisan $(cmd)
 
