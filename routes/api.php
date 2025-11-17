@@ -18,4 +18,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('password/forgot', [AuthController::class, 'forgotPassword']);
         Route::post('password/reset', [AuthController::class, 'resetPassword']);
     });
+
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::apiResource('students', StudentController::class);
+        Route::apiResource('subjects', SubjectController::class);
+    });
 });
