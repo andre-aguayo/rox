@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Contracts\Auth\AuthServiceInterface;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,8 +16,7 @@ class AuthController extends Controller
 {
     public function __construct(
         private readonly AuthServiceInterface $authService
-    ) {
-    }
+    ) {}
 
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -77,5 +76,30 @@ class AuthController extends Controller
         }
 
         return response()->json([], Response::HTTP_NO_CONTENT);
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $this->authService->requestPasswordReset($data['email']);
+
+        return response()->json([
+            'message' => 'If the email exists, a reset link has been sent.',
+        ]);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $this->authService->resetPassword(
+            $data['token'],
+            $data['password'],
+        );
+
+        return response()->json([
+            'message' => 'Password has been reset successfully.',
+        ]);
     }
 }
