@@ -60,7 +60,18 @@ artisan:
 	$(SAIL) artisan $(cmd)
 
 migrate:
-	$(SAIL) artisan migrate --seed
+	@retries=10; \
+	sleep_time=5; \
+	count=0; \
+	until $(SAIL) artisan migrate --seed; do \
+		count=$$((count+1)); \
+		if [ $$count -ge $$retries ]; then \
+			echo "Migrations failed after $$count attempts. Giving up."; \
+			exit 1; \
+		fi; \
+		echo "Migration failed. Waiting for database to be ready... (attempt $$count/$$retries)"; \
+		sleep $$sleep_time; \
+	done
 
 fresh:
 	$(SAIL) artisan migrate:fresh
